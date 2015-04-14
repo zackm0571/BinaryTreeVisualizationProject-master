@@ -33,12 +33,17 @@ public class RenderView extends View implements SurfaceHolder {
     private float mTextHeight;
 
 
-
     private Context context;
     private NodeManager nodeManager;
 
 
     public static Point screenSize = new Point();
+
+
+    public static int MIN_TREE_SIZE = 2;
+    public static int MAX_TREE_SIZE = 6;
+
+    public static int treeSize = 5;
     public RenderView(Context context) {
         super(context);
 
@@ -116,7 +121,7 @@ public class RenderView extends View implements SurfaceHolder {
         nodeManager = new NodeManager(head);
 
 
-        nodeManager.populateTree(head, 5); //hardcoded for test
+        nodeManager.populateTree(head, treeSize); //hardcoded for test
 
     }
 
@@ -143,44 +148,63 @@ public class RenderView extends View implements SurfaceHolder {
 //                mTextPaint);
 
 
+            traverseNodes(head, canvas, mNumPaint);
 
-        for(Node node : nodeManager.nodes) {
-
-
-            canvas.drawCircle(node.pos_x,
-                    node.pos_y, node.radius, mTextPaint);
-
-
-
-            canvas.drawText(String.valueOf(node.value),
-                    node.pos_x,
-                    node.pos_y,
-                    mNumPaint);
-
-            connectNodes(head, canvas, mNumPaint);
-
-        }
 
 
     }
 
 /**** Traverses tree to connect each child node ****/
-    public void connectNodes(Node head, Canvas canvas, Paint paint){
+    public void traverseNodes(Node child, Canvas canvas, Paint paint){
 
-        Node childLeft = null, childRight = null;
+        Node childLeft, childRight;
 
-        if(head.childLeft != null){
-            childLeft = head.childLeft;
-            canvas.drawLine(head.pos_x , head.pos_y, childLeft.pos_x, childLeft.pos_y, paint);
+        if(child.type.equals(Node.NODE_TYPE_HEAD)){
 
-            connectNodes(childLeft, canvas, paint);
+            canvas.drawCircle(head.pos_x,
+                    head.pos_y, head.radius, mTextPaint);
+
+            canvas.drawText(String.valueOf(head.value),
+                    head.pos_x,
+                    head.pos_y,
+                    mNumPaint);
+        }
+
+        if(child.childLeft != null){
+            childLeft = child.childLeft;
+
+            canvas.drawCircle(childLeft.pos_x,
+                    childLeft.pos_y, childLeft.radius, mTextPaint);
+
+
+            canvas.drawText(String.valueOf(childLeft.value),
+                    childLeft.pos_x,
+                    childLeft.pos_y,
+                    mNumPaint);
+
+            canvas.drawLine(child.pos_x , child.pos_y, childLeft.pos_x, childLeft.pos_y, paint);
+
+
+            traverseNodes(childLeft, canvas, paint);
 
 
         }
-        if(head.childRight != null) {
-            childRight = head.childRight;
-            canvas.drawLine(head.pos_x , head.pos_y, childRight.pos_x, childRight.pos_y, paint);
-            connectNodes(childRight, canvas, paint);
+        if(child.childRight != null) {
+            childRight = child.childRight;
+
+            canvas.drawCircle(childRight.pos_x,
+                    childRight.pos_y, childRight.radius, mTextPaint);
+
+            canvas.drawText(String.valueOf(childRight.value),
+                    childRight.pos_x,
+                    childRight.pos_y,
+                    mNumPaint);
+
+            canvas.drawLine(child.pos_x , child.pos_y, childRight.pos_x, childRight.pos_y, paint);
+
+
+            traverseNodes(childRight, canvas, paint);
+
         }
 
 

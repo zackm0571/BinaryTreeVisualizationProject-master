@@ -16,7 +16,7 @@ public class NodeManager {
 
     private Node head;
 
-    public List<Node> nodes = new ArrayList<Node>();
+ //   public List<Node> nodes = new ArrayList<Node>();
 
     public NodeManager(Node head){
         this.head = head;
@@ -24,14 +24,13 @@ public class NodeManager {
 
 
     public static float radius = 50.0f; //hardcoded for test
+
+    Random rand = new Random();
+
     public void populateTree(Node child, int depth){
 
 
         radius = RenderView.screenSize.x / 30;
-        if(!nodes.contains(child)){
-            nodes.add(child);
-        }
-        Random rand = new Random();
 
         if(head == null || child == null){return;}
 
@@ -41,31 +40,35 @@ public class NodeManager {
             int offsetrx  = Node.NODE_RIGHT_rX_OFFSET(child.radius) * 3
                     , offsetlx = Node.NODE_LEFT_lX_OFFSET(child.radius) * 3;
 
+
+
             if(child.type.equals(Node.NODE_TYPE_LEFT_CHILD)){
-                offsetlx = Node.NODE_LEFT_lX_OFFSET(child.radius) + (int)child.radius * 4;
-                offsetrx = Node.NODE_LEFT_rX_OFFSET(child.radius) - (int)child.radius * 4;
+                offsetlx = Node.NODE_LEFT_lX_OFFSET(child.radius) - (int)child.radius;
+                offsetrx = Node.NODE_LEFT_rX_OFFSET(child.radius) + (int)child.radius / 3;
             }
 
             else if(child.type.equals(Node.NODE_TYPE_RIGHT_CHILD)){
-                offsetlx = Node.NODE_RIGHT_lX_OFFSET(child.radius) +(int)child.radius * 4;
+                offsetlx = Node.NODE_RIGHT_lX_OFFSET(child.radius) -(int)child.radius / 3;
 
-                offsetrx = Node.NODE_RIGHT_rX_OFFSET(child.radius) - (int)child.radius * 4;
+                offsetrx = Node.NODE_RIGHT_rX_OFFSET(child.radius) + (int)child.radius;
             }
 
-            int leftVal = rand.nextInt(head.value - head.value /5) + 1;
+            int leftVal = rand.nextInt(child.value / 2) + 1;
+
+
             Node childLeft = new Node(leftVal, child.pos_x + offsetlx, child.pos_y + Node.NODE_Y_OFFSET(child.radius), radius);
             childLeft.type = Node.NODE_TYPE_LEFT_CHILD;
             child.childLeft = childLeft;
 
 
-            int rightVal = rand.nextInt(head.value * 3) + 1;
+            int rightVal = rand.nextInt(child.value * 5) + child.value * 2;
             Node childRight  = new Node(rightVal, child.pos_x + offsetrx , child.pos_y + Node.NODE_Y_OFFSET(child.radius), radius);
             childRight.type = Node.NODE_TYPE_RIGHT_CHILD;
             child.childRight = childRight;
 
 
-            nodes.add(childRight);
-            nodes.add(childLeft);
+         //   nodes.add(childRight);
+           // nodes.add(childLeft);
 
             depth -= 2;
 
