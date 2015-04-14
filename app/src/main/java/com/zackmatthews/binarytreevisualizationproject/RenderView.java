@@ -27,7 +27,7 @@ public class RenderView extends View implements SurfaceHolder {
     private float mExampleDimension = 0; // TODO: use a default from R.dimen...
     private Drawable mExampleDrawable;
 
-    private TextPaint mTextPaint;
+    private TextPaint mNodePaint;
     private TextPaint mNumPaint;
     private float mTextWidth;
     private float mTextHeight;
@@ -95,15 +95,17 @@ public class RenderView extends View implements SurfaceHolder {
         display.getSize(screenSize);
 
         // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
+        mNodePaint = new TextPaint();
+        mNodePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        mNodePaint.setTextAlign(Paint.Align.LEFT);
+        mNodePaint.setColor(Color.GRAY);
+
 
         mNumPaint = new TextPaint();
         mNumPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mNumPaint.setTextAlign(Paint.Align.CENTER);
         mNumPaint.setTextSize(32.0f);
-        mNumPaint.setColor(Color.RED);
+        mNumPaint.setColor(Color.CYAN);
 
         paddingLeft = getPaddingLeft();
         paddingTop = getPaddingTop();
@@ -162,7 +164,7 @@ public class RenderView extends View implements SurfaceHolder {
         if(child.type.equals(Node.NODE_TYPE_HEAD)){
 
             canvas.drawCircle(head.pos_x,
-                    head.pos_y, head.radius, mTextPaint);
+                    head.pos_y, head.radius, mNodePaint);
 
             canvas.drawText(String.valueOf(head.value),
                     head.pos_x,
@@ -174,7 +176,7 @@ public class RenderView extends View implements SurfaceHolder {
             childLeft = child.childLeft;
 
             canvas.drawCircle(childLeft.pos_x,
-                    childLeft.pos_y, childLeft.radius, mTextPaint);
+                    childLeft.pos_y, childLeft.radius, mNodePaint);
 
 
             canvas.drawText(String.valueOf(childLeft.value),
@@ -193,7 +195,7 @@ public class RenderView extends View implements SurfaceHolder {
             childRight = child.childRight;
 
             canvas.drawCircle(childRight.pos_x,
-                    childRight.pos_y, childRight.radius, mTextPaint);
+                    childRight.pos_y, childRight.radius, mNodePaint);
 
             canvas.drawText(String.valueOf(childRight.value),
                     childRight.pos_x,
