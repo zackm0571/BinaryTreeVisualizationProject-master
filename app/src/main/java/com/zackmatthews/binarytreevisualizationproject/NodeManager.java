@@ -2,6 +2,7 @@ package com.zackmatthews.binarytreevisualizationproject;
 
 import android.content.Context;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
@@ -80,10 +81,8 @@ public class NodeManager {
 
         }
 
-
-
-
-
     }
+
+
 
 }

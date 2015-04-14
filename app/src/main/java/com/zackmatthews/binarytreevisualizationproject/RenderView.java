@@ -16,6 +16,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.NumberPicker;
 
 
 /**
@@ -44,6 +45,11 @@ public class RenderView extends View implements SurfaceHolder {
     public static int MAX_TREE_SIZE = 6;
 
     public static int treeSize = 5;
+
+
+    NumberPicker picker;
+
+
     public RenderView(Context context) {
         super(context);
 
@@ -121,9 +127,9 @@ public class RenderView extends View implements SurfaceHolder {
 
 
         nodeManager = new NodeManager(head);
+        nodeManager.populateTree(head, treeSize);
 
 
-        nodeManager.populateTree(head, treeSize); //hardcoded for test
 
     }
 
@@ -152,9 +158,29 @@ public class RenderView extends View implements SurfaceHolder {
 
             traverseNodes(head, canvas, mNumPaint);
 
+            if(picker == null){
+                try {
+                    picker = (NumberPicker) this.getRootView().findViewById(R.id.nodeCountPicker);
+                    picker.setMaxValue(MAX_TREE_SIZE);
+                    picker.setMinValue(MIN_TREE_SIZE);
+                    picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                        @Override
+                        public void onValueChange(NumberPicker numberPicker, int i, int i2) {
+                            treeSize = i2;
+                            nodeManager.populateTree(head, treeSize);
+                        }
+                    });
+                }
 
+                catch(Exception e){
+
+                }
+
+            }
 
     }
+
+
 
 /**** Traverses tree to connect each child node ****/
     public void traverseNodes(Node child, Canvas canvas, Paint paint){

@@ -1,12 +1,23 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
- tools:context=".MainActivity">
+ tools:context=".MainActivity"
+    android:background="#000000">
 
 
     <com.zackmatthews.binarytreevisualizationproject.RenderView android:background="#000000"
-        android:layout_width="match_parent" android:layout_height="match_parent" android:paddingLeft="20dp"
-         />
+        android:layout_width="match_parent" android:layout_height="400dp" android:paddingLeft="20dp"
+        android:layout_gravity="center_horizontal|top" />
+
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/nodeCountPicker"
+        android:layout_gravity="start|bottom"
+
+        android:orientation="horizontal"
+
+        />
 
 
-</RelativeLayout>
+</FrameLayout>
