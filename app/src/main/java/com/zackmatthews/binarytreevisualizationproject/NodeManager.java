@@ -85,4 +85,65 @@ public class NodeManager {
 
 
 
+    public void insert(Node leaf, int key){
+        if(key < leaf.value) {
+
+            if(leaf.childLeft != null){
+                insert(leaf.childLeft, key);
+            }
+
+            else{
+
+                /*** PLACE HOLDER **/
+
+                int offsetrx  = Node.NODE_RIGHT_rX_OFFSET(leaf.radius) * 3
+                        , offsetlx = Node.NODE_LEFT_lX_OFFSET(leaf.radius) * 3;
+
+
+
+                if(leaf.type.equals(Node.NODE_TYPE_LEFT_CHILD)){
+                    offsetlx = Node.NODE_LEFT_lX_OFFSET(leaf.radius) - (int)leaf.radius;
+                    offsetrx = Node.NODE_LEFT_rX_OFFSET(leaf.radius) + (int)leaf.radius / 3;
+                }
+
+                else if(leaf.type.equals(Node.NODE_TYPE_RIGHT_CHILD)){
+                    offsetlx = Node.NODE_RIGHT_lX_OFFSET(leaf.radius) -(int)leaf.radius / 3;
+
+                    offsetrx = Node.NODE_RIGHT_rX_OFFSET(leaf.radius) + (int)leaf.radius;
+                }
+
+
+                leaf.childLeft = new Node(key, leaf.pos_x + offsetlx, leaf.pos_y + Node.NODE_Y_OFFSET(radius), radius );
+                leaf.childLeft.type = Node.NODE_TYPE_LEFT_CHILD;
+            }
+
+        }
+
+        else if(key >= leaf.value) {
+
+            if (leaf.childRight != null) {
+                insert(leaf.childRight, key);
+            } else {
+
+                /*** PLACE HOLDER **/
+
+                int offsetrx = Node.NODE_RIGHT_rX_OFFSET(leaf.radius) * 3, offsetlx = Node.NODE_LEFT_lX_OFFSET(leaf.radius) * 3;
+
+
+                if (leaf.type.equals(Node.NODE_TYPE_LEFT_CHILD)) {
+                    offsetlx = Node.NODE_LEFT_lX_OFFSET(leaf.radius) - (int) leaf.radius;
+                    offsetrx = Node.NODE_LEFT_rX_OFFSET(leaf.radius) + (int) leaf.radius / 3;
+                } else if (leaf.type.equals(Node.NODE_TYPE_RIGHT_CHILD)) {
+                    offsetlx = Node.NODE_RIGHT_lX_OFFSET(leaf.radius) - (int) leaf.radius / 3;
+
+                    offsetrx = Node.NODE_RIGHT_rX_OFFSET(leaf.radius) + (int) leaf.radius;
+                }
+
+                leaf.childRight = new Node(key, leaf.pos_x + offsetlx, leaf.pos_y + Node.NODE_Y_OFFSET(radius), radius);
+                leaf.childRight.type = Node.NODE_TYPE_RIGHT_CHILD;
+            }
+        }
+
+    }
+
 }

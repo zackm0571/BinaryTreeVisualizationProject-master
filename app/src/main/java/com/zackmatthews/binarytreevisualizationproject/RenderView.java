@@ -1,38 +1,43 @@
 package com.zackmatthews.binarytreevisualizationproject;
 
+import android.app.ActionBar;
 import android.content.Context;
-import android.content.res.TypedArray;
+
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.text.InputType;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 
 /**
  * TODO: document your custom view class.
  */
 public class RenderView extends View implements SurfaceHolder {
-    private String mExampleString; // TODO: use a default from R.string...
-    private int mExampleColor = Color.RED; // TODO: use a default from R.color...
-    private float mExampleDimension = 0; // TODO: use a default from R.dimen...
-    private Drawable mExampleDrawable;
 
     private TextPaint mNodePaint;
     private TextPaint mNumPaint;
-    private float mTextWidth;
-    private float mTextHeight;
-
 
     private Context context;
     private NodeManager nodeManager;
@@ -47,8 +52,10 @@ public class RenderView extends View implements SurfaceHolder {
     public static int treeSize = 5;
 
 
-    NumberPicker picker;
+    public static int defaultScreenWidth = 2560;
+    public static int defaultScreenHeight = 1440;
 
+    Button insertButton;
 
     public RenderView(Context context) {
         super(context);
@@ -70,29 +77,6 @@ public class RenderView extends View implements SurfaceHolder {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-
-        // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.RenderView, defStyle, 0);
-
-        mExampleString = a.getString(
-                R.styleable.RenderView_exampleString);
-        mExampleColor = a.getColor(
-                R.styleable.RenderView_exampleColor,
-                mExampleColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        mExampleDimension = a.getDimension(
-                R.styleable.RenderView_exampleDimension,
-                mExampleDimension);
-
-        if (a.hasValue(R.styleable.RenderView_exampleDrawable)) {
-            mExampleDrawable = a.getDrawable(
-                    R.styleable.RenderView_exampleDrawable);
-            mExampleDrawable.setCallback(this);
-        }
-
-        a.recycle();
 
 
 
@@ -139,8 +123,6 @@ public class RenderView extends View implements SurfaceHolder {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         this.invalidate();
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
         paddingLeft = getPaddingLeft();
         paddingTop = getPaddingTop();
         paddingRight = getPaddingRight();
@@ -158,16 +140,42 @@ public class RenderView extends View implements SurfaceHolder {
 
             traverseNodes(head, canvas, mNumPaint);
 
-            if(picker == null){
+            if(insertButton == null){
                 try {
-                    picker = (NumberPicker) this.getRootView().findViewById(R.id.nodeCountPicker);
-                    picker.setMaxValue(MAX_TREE_SIZE);
-                    picker.setMinValue(MIN_TREE_SIZE);
-                    picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                    insertButton = (Button) this.getRootView().findViewById(R.id.pushNodeButton);
+
+
+                    insertButton.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onValueChange(NumberPicker numberPicker, int i, int i2) {
-                            treeSize = i2;
-                            nodeManager.populateTree(head, treeSize);
+                        public void onClick(View v) {
+
+                            showNodeValueInput();
+
+//                            EditText keyValInput = new EditText(context);
+//                            keyValInput.setTextColor(Color.CYAN);
+//
+//                            keyValInput.setFocusable(true);
+//                            keyValInput.setFocusableInTouchMode(true);
+//
+//                            v.setFocusable(true);
+//                            v.setFocusableInTouchMode(true);
+//                            keyValInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+//
+//                            keyValInput.setWidth(screenSize.x);
+//                            keyValInput.requestFocus();
+//
+//                            FrameLayout layout = (FrameLayout)getRootView();
+//                            layout.addView(keyValInput);
+//
+//
+//
+//                            InputMethodManager imm = (InputMethodManager) context.getSystemService(
+//                                    Context.INPUT_METHOD_SERVICE);
+//                            imm.showSoftInput(keyValInput, InputMethodManager.SHOW_IMPLICIT);//.hideSoftInputFromWindow(keyValInput.getWindowToken(), 0);
+//
+//
+//                            //layout.findViewById(keyValInput.getId()).requestFocus();
+
                         }
                     });
                 }
@@ -177,6 +185,109 @@ public class RenderView extends View implements SurfaceHolder {
                 }
 
             }
+
+    }
+
+
+    PopupWindow popupWindow = null;
+
+    public void showNodeValueInput(){
+        LinearLayout rootContainer = new LinearLayout(context);
+        final EditText input = new EditText(context);
+        final TextView errorText = new TextView(context);
+        Button dismissButton = new Button(context);
+        LinearLayout inLineContainer = new LinearLayout(context);
+
+        rootContainer.setOrientation(LinearLayout.VERTICAL);
+
+
+
+        inLineContainer.setOrientation(LinearLayout.HORIZONTAL);
+
+
+         input.setOnClickListener(new OnClickListener() {
+
+             @Override
+             public void onClick(View v) {
+                 errorText.setVisibility(View.GONE);
+             }
+         });
+
+
+        input.setHint("Please provide a node value");
+
+
+        input.setRawInputType(Configuration.KEYBOARD_12KEY);
+        input.setTextColor(Color.CYAN);
+        input.setGravity(Gravity.CENTER);
+
+
+        errorText.setVisibility(View.GONE);
+
+        dismissButton.setText("Push Node");
+
+        dismissButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+                if (input.getText().toString().equals("")) {
+                    errorText.setText("Please enter a valid value");
+                    errorText.setVisibility(View.VISIBLE);
+                    input.setText("");
+
+
+                } else {
+                    nodeManager.insert(head, Integer.parseInt(input.getText().toString()));
+                    popupWindow.dismiss();
+                }
+            }
+        });
+
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        layoutParams.topMargin = 20;
+
+
+        LinearLayout.LayoutParams layoutParamsForInlineContainer = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        layoutParamsForInlineContainer.topMargin = 30;
+
+
+        LinearLayout.LayoutParams layoutParamsForInlineET = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+
+        layoutParamsForInlineET.weight = 1;
+
+
+        LinearLayout.LayoutParams layoutParamsForInlineButton = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        layoutParamsForInlineButton.weight = 0;
+
+        //inLineContainer.addView(inLineContainer, layoutParamsForInlineContainer);
+        inLineContainer.addView(input, layoutParamsForInlineET);
+        inLineContainer.addView(dismissButton, layoutParamsForInlineButton);
+        //inLineContainer.addView(errorText, layoutParams);
+
+
+
+        inLineContainer.setGravity(Gravity.CENTER);
+        inLineContainer.setBackgroundColor(0x95000000);
+
+
+        popupWindow = new PopupWindow(inLineContainer,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
+        popupWindow.setFocusable(true);
+        popupWindow.showAtLocation(inLineContainer, Gravity.CENTER, 0, 0);
 
     }
 
@@ -236,85 +347,6 @@ public class RenderView extends View implements SurfaceHolder {
         }
 
 
-    }
-
-    /**
-     * Gets the example string attribute value.
-     *
-     * @return The example string attribute value.
-     */
-    public String getExampleString() {
-        return mExampleString;
-    }
-
-    /**
-     * Sets the view's example string attribute value. In the example view, this string
-     * is the text to draw.
-     *
-     * @param exampleString The example string attribute value to use.
-     */
-    public void setExampleString(String exampleString) {
-        mExampleString = exampleString;
-
-    }
-
-    /**
-     * Gets the example color attribute value.
-     *
-     * @return The example color attribute value.
-     */
-    public int getExampleColor() {
-        return mExampleColor;
-    }
-
-    /**
-     * Sets the view's example color attribute value. In the example view, this color
-     * is the font color.
-     *
-     * @param exampleColor The example color attribute value to use.
-     */
-    public void setExampleColor(int exampleColor) {
-        mExampleColor = exampleColor;
-
-    }
-
-    /**
-     * Gets the example dimension attribute value.
-     *
-     * @return The example dimension attribute value.
-     */
-    public float getExampleDimension() {
-        return mExampleDimension;
-    }
-
-    /**
-     * Sets the view's example dimension attribute value. In the example view, this dimension
-     * is the font size.
-     *
-     * @param exampleDimension The example dimension attribute value to use.
-     */
-    public void setExampleDimension(float exampleDimension) {
-        mExampleDimension = exampleDimension;
-
-    }
-
-    /**
-     * Gets the example drawable attribute value.
-     *
-     * @return The example drawable attribute value.
-     */
-    public Drawable getExampleDrawable() {
-        return mExampleDrawable;
-    }
-
-    /**
-     * Sets the view's example drawable attribute value. In the example view, this drawable is
-     * drawn above the text.
-     *
-     * @param exampleDrawable The example drawable attribute value to use.
-     */
-    public void setExampleDrawable(Drawable exampleDrawable) {
-        mExampleDrawable = exampleDrawable;
     }
 
     @Override
