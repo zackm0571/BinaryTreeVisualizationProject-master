@@ -1,32 +1,24 @@
 package com.zackmatthews.binarytreevisualizationproject;
 
-import android.app.ActionBar;
 import android.content.Context;
-
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.text.InputType;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -131,12 +123,6 @@ public class RenderView extends View implements SurfaceHolder {
         contentWidth = getWidth() - paddingLeft - paddingRight;
         contentHeight = getHeight() - paddingTop - paddingBottom;
 
-        // Draw the text.
-//        canvas.drawText("Hello World",
-//                paddingLeft + (contentWidth - mTextWidth) / 2,
-//                paddingTop + (contentHeight + mTextHeight) / 2,
-//                mTextPaint);
-
 
             traverseNodes(head, canvas, mNumPaint);
 
@@ -150,33 +136,7 @@ public class RenderView extends View implements SurfaceHolder {
                         public void onClick(View v) {
 
                             showNodeValueInput();
-
-//                            EditText keyValInput = new EditText(context);
-//                            keyValInput.setTextColor(Color.CYAN);
-//
-//                            keyValInput.setFocusable(true);
-//                            keyValInput.setFocusableInTouchMode(true);
-//
-//                            v.setFocusable(true);
-//                            v.setFocusableInTouchMode(true);
-//                            keyValInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-//
-//                            keyValInput.setWidth(screenSize.x);
-//                            keyValInput.requestFocus();
-//
-//                            FrameLayout layout = (FrameLayout)getRootView();
-//                            layout.addView(keyValInput);
-//
-//
-//
-//                            InputMethodManager imm = (InputMethodManager) context.getSystemService(
-//                                    Context.INPUT_METHOD_SERVICE);
-//                            imm.showSoftInput(keyValInput, InputMethodManager.SHOW_IMPLICIT);//.hideSoftInputFromWindow(keyValInput.getWindowToken(), 0);
-//
-//
-//                            //layout.findViewById(keyValInput.getId()).requestFocus();
-
-                        }
+ }
                     });
                 }
 
@@ -213,13 +173,12 @@ public class RenderView extends View implements SurfaceHolder {
              }
          });
 
-
-        input.setHint("Please provide a node value");
-
-
+        input.setHint("Node value");
+        input.setHintTextColor(Color.CYAN);
         input.setRawInputType(Configuration.KEYBOARD_12KEY);
         input.setTextColor(Color.CYAN);
         input.setGravity(Gravity.CENTER);
+
 
 
         errorText.setVisibility(View.GONE);
