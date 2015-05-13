@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -30,10 +31,12 @@ public class RenderView extends View implements SurfaceHolder {
 
     private TextPaint mNodePaint;
     private TextPaint mNumPaint;
+    private TextPaint mSelectedNodePaint;
 
     private Context context;
-    private NodeManager nodeManager;
 
+    private NodeManager nodeManager;
+    private Node selectedNode = null;
 
     public static Point screenSize = new Point();
 
@@ -47,7 +50,9 @@ public class RenderView extends View implements SurfaceHolder {
     public static int defaultScreenWidth = 2560;
     public static int defaultScreenHeight = 1440;
 
-    Button insertButton;
+    private Button insertButton;
+    private Button searchButton;
+
 
     public RenderView(Context context) {
         super(context);
@@ -71,7 +76,6 @@ public class RenderView extends View implements SurfaceHolder {
     private void init(AttributeSet attrs, int defStyle) {
 
 
-
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         display.getSize(screenSize);
@@ -81,6 +85,11 @@ public class RenderView extends View implements SurfaceHolder {
         mNodePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mNodePaint.setTextAlign(Paint.Align.LEFT);
         mNodePaint.setColor(Color.GRAY);
+
+        mSelectedNodePaint = new TextPaint();
+        mSelectedNodePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        mSelectedNodePaint.setTextAlign(Paint.Align.LEFT);
+        mSelectedNodePaint.setColor(Color.RED);
 
 
         mNumPaint = new TextPaint();
@@ -106,11 +115,11 @@ public class RenderView extends View implements SurfaceHolder {
         nodeManager.populateTree(head, treeSize);
 
 
-
     }
 
     private Node head;
     private int paddingLeft, paddingTop, paddingRight, paddingBottom, contentWidth, contentHeight;
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -124,34 +133,56 @@ public class RenderView extends View implements SurfaceHolder {
         contentHeight = getHeight() - paddingTop - paddingBottom;
 
 
-            traverseNodes(head, canvas, mNumPaint);
+        traverseNodes(head, canvas, mNumPaint);
 
-            if(insertButton == null){
-                try {
-                    insertButton = (Button) this.getRootView().findViewById(R.id.pushNodeButton);
+        if (insertButton == null) {
+            try {
+                insertButton = (Button) this.getRootView().findViewById(R.id.pushNodeButton);
 
 
-                    insertButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
+                insertButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-                            showNodeValueInput();
- }
-                    });
-                }
-
-                catch(Exception e){
-
-                }
+                        showNodeValueInput(BinaryMode.Insert);
+                    }
+                });
+            } catch (Exception e) {
 
             }
+
+        }
+
+
+        if (searchButton == null) {
+            try {
+                searchButton = (Button) this.getRootView().findViewById(R.id.searchButton);
+
+
+                searchButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        showNodeValueInput(BinaryMode.Search);
+                    }
+                });
+            } catch (Exception e) {
+
+            }
+
+        }
 
     }
 
 
-    PopupWindow popupWindow = null;
+    private PopupWindow popupWindow = null;
 
-    public void showNodeValueInput(){
+    protected enum BinaryMode {
+        Search,
+        Insert
+    }
+
+    public void showNodeValueInput(final BinaryMode mode) {
         LinearLayout rootContainer = new LinearLayout(context);
         final EditText input = new EditText(context);
         final TextView errorText = new TextView(context);
@@ -161,17 +192,16 @@ public class RenderView extends View implements SurfaceHolder {
         rootContainer.setOrientation(LinearLayout.VERTICAL);
 
 
-
         inLineContainer.setOrientation(LinearLayout.HORIZONTAL);
 
 
-         input.setOnClickListener(new OnClickListener() {
+        input.setOnClickListener(new OnClickListener() {
 
-             @Override
-             public void onClick(View v) {
-                 errorText.setVisibility(View.GONE);
-             }
-         });
+            @Override
+            public void onClick(View v) {
+                errorText.setVisibility(View.GONE);
+            }
+        });
 
         input.setHint("Node value");
         input.setHintTextColor(Color.CYAN);
@@ -180,10 +210,12 @@ public class RenderView extends View implements SurfaceHolder {
         input.setGravity(Gravity.CENTER);
 
 
-
         errorText.setVisibility(View.GONE);
 
-        dismissButton.setText("Push Node");
+        String modeText = (mode == BinaryMode.Insert) ? "Push Node" :
+                (mode == BinaryMode.Search) ? "Search" :
+                        "null operation";
+        dismissButton.setText(modeText);
 
         dismissButton.setOnClickListener(new OnClickListener() {
 
@@ -198,10 +230,38 @@ public class RenderView extends View implements SurfaceHolder {
 
 
                 } else {
-                    nodeManager.insert(head, Integer.parseInt(input.getText().toString()));
-                    popupWindow.dismiss();
+
+                    if (selectedNode != null) {
+                        nodeManager.findByValue(head, selectedNode.value, true);
+                        selectedNode = null;
+                    }
+                    if (mode == BinaryMode.Insert) {
+
+                            nodeManager.insert(head, Integer.parseInt(input.getText().toString()));
+                            popupWindow.dismiss();
+
+                    }
+                    else if (mode == BinaryMode.Search) {
+
+
+                                selectedNode = nodeManager.findByValue(head, Integer.parseInt(input.getText().toString()), false);
+
+                                String resultText = "";
+                                if (selectedNode != null) {
+                                    resultText = "Node value: " + String.valueOf(selectedNode.value);
+                                } else {
+                                    resultText = "Value not found";
+                                }
+                                Toast.makeText(context, resultText, Toast.LENGTH_SHORT).show();
+                                popupWindow.dismiss();
+
+
+
+
+                        }
+                    }
                 }
-            }
+
         });
 
 
@@ -235,7 +295,6 @@ public class RenderView extends View implements SurfaceHolder {
         //inLineContainer.addView(errorText, layoutParams);
 
 
-
         inLineContainer.setGravity(Gravity.CENTER);
         inLineContainer.setBackgroundColor(0x95000000);
 
@@ -248,19 +307,29 @@ public class RenderView extends View implements SurfaceHolder {
         popupWindow.setFocusable(true);
         popupWindow.showAtLocation(inLineContainer, Gravity.CENTER, 0, 0);
 
+
     }
 
 
-
-/**** Traverses tree to connect each child node ****/
-    public void traverseNodes(Node child, Canvas canvas, Paint paint){
+    /**
+     * * Traverses tree to connect each child node ***
+     */
+    public void traverseNodes(Node child, Canvas canvas, Paint paint) {
 
         Node childLeft, childRight;
 
-        if(child.type.equals(Node.NODE_TYPE_HEAD)){
+        Paint mPaint = null;
+        if (child.type.equals(Node.NODE_TYPE_HEAD)) {
+
+            if (!child.isHighlightedInPath) {
+                mPaint = mNodePaint;
+            } else {
+                mPaint = mSelectedNodePaint;
+            }
+
 
             canvas.drawCircle(head.pos_x,
-                    head.pos_y, head.radius, mNodePaint);
+                    head.pos_y, head.radius, mPaint);
 
             canvas.drawText(String.valueOf(head.value),
                     head.pos_x,
@@ -268,11 +337,18 @@ public class RenderView extends View implements SurfaceHolder {
                     mNumPaint);
         }
 
-        if(child.childLeft != null){
+        if (child.childLeft != null) {
             childLeft = child.childLeft;
 
+            if (!childLeft.isHighlightedInPath) {
+                mPaint = mNodePaint;
+            } else {
+                mPaint = mSelectedNodePaint;
+            }
+
+
             canvas.drawCircle(childLeft.pos_x,
-                    childLeft.pos_y, childLeft.radius, mNodePaint);
+                    childLeft.pos_y, childLeft.radius, mPaint);
 
 
             canvas.drawText(String.valueOf(childLeft.value),
@@ -280,25 +356,31 @@ public class RenderView extends View implements SurfaceHolder {
                     childLeft.pos_y,
                     mNumPaint);
 
-            canvas.drawLine(child.pos_x , child.pos_y, childLeft.pos_x, childLeft.pos_y, paint);
+            canvas.drawLine(child.pos_x, child.pos_y, childLeft.pos_x, childLeft.pos_y, paint);
 
 
             traverseNodes(childLeft, canvas, paint);
 
 
         }
-        if(child.childRight != null) {
+        if (child.childRight != null) {
             childRight = child.childRight;
 
+            if (!childRight.isHighlightedInPath) {
+                mPaint = mNodePaint;
+            } else {
+                mPaint = mSelectedNodePaint;
+            }
+
             canvas.drawCircle(childRight.pos_x,
-                    childRight.pos_y, childRight.radius, mNodePaint);
+                    childRight.pos_y, childRight.radius, mPaint);
 
             canvas.drawText(String.valueOf(childRight.value),
                     childRight.pos_x,
                     childRight.pos_y,
                     mNumPaint);
 
-            canvas.drawLine(child.pos_x , child.pos_y, childRight.pos_x, childRight.pos_y, paint);
+            canvas.drawLine(child.pos_x, child.pos_y, childRight.pos_x, childRight.pos_y, paint);
 
 
             traverseNodes(childRight, canvas, paint);
